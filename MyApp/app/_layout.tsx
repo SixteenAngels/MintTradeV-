@@ -21,7 +21,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     if (!user && !inAuthGroup) {
       router.replace('/auth/login');
     } else if (user && inAuthGroup) {
-      router.replace('/');
+      router.replace('/(tabs)');
     }
   }, [user, initializing, segments, router]);
 
@@ -36,7 +36,7 @@ export default function RootLayout() {
           <StatusBar style="dark" />
           <AuthGate>
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="index" />
+              <Stack.Screen name="(tabs)" />
               <Stack.Screen name="auth/login" />
               <Stack.Screen name="auth/signup" />
             </Stack>
