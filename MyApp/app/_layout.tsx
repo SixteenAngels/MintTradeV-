@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PaperProvider, MD3LightTheme as DefaultTheme } from 'react-native-paper';
+import { Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from './store/useAuthStore';
@@ -32,7 +33,19 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <PaperProvider theme={DefaultTheme}>
+        <PaperProvider
+          theme={{
+            ...DefaultTheme,
+            colors: {
+              ...DefaultTheme.colors,
+              primary: '#00B67A',
+              secondary: '#10B981',
+              background: '#FFFFFF',
+              surface: '#FFFFFF',
+            },
+            roundness: 16,
+          }}
+        >
           <StatusBar style="dark" />
           <AuthGate>
             <Stack screenOptions={{ headerShown: false }}>
