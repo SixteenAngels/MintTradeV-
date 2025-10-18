@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { Text, SegmentedButtons, ActivityIndicator } from 'react-native-paper';
 import { useLocalSearchParams } from 'expo-router';
 import { fetchSymbolHistory } from '../../services/marketService';
+import { PriceChart } from '../../components/PriceChart';
 
 const ranges = [
   { value: '1d', label: '1D' },
@@ -16,13 +17,21 @@ export default function SymbolScreen() {
   const { symbol } = useLocalSearchParams<{ symbol: string }>();
   const [range, setRange] = useState<'1d'|'1w'|'1m'|'3m'|'1y'>('1m');
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<Array<{ x: number; y: number }>>([]);
 
   useEffect(() => {
     let mounted = true;
     setLoading(true);
     fetchSymbolHistory(symbol!, range)
-      .then((d) => mounted && setData(d))
+      .then((d) => {
+        if (!mounted) return;
+        // Expect array of [timestamp, price] or objects; normalize
+        const points: Array<{ x: number; y: number }> = (d ?? []).map((p: any) => {
+          if (Array.isArray(p)) return { x: Number(p[0]), y: Number(p[1]) };
+          return { x: Number(p.t ?? p.time ?? p.x ?? 0), y: Number(p.p ?? p.price ?? p.y ?? 0) };
+        }).filter((p: any) => Number.isFinite(p.x) && Number.isFinite(p.y));
+        setData(points);
+      })
       .finally(() => mounted && setLoading(false));
     return () => {
       mounted = false;
@@ -38,11 +47,7 @@ export default function SymbolScreen() {
         buttons={ranges}
         style={{ marginBottom: 12 }}
       />
-      {loading ? (
-        <ActivityIndicator />
-      ) : (
-        <Text>Data points: {Array.isArray(data) ? data.length : 0}</Text>
-      )}
+      {loading ? <ActivityIndicator /> : <PriceChart data={data} />}
     </View>
   );
 }
