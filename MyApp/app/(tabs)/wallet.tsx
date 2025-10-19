@@ -4,8 +4,11 @@ import { Text, TextInput, Button, List, ActivityIndicator } from 'react-native-p
 import * as Haptics from 'expo-haptics';
 import { useSnackbarStore } from '../store/useSnackbarStore';
 import { initiateDeposit, requestWithdrawal, getTransactions, type WalletTx } from '../services/walletService';
+import { BlurView } from 'expo-blur';
+import { useResponsive } from '../hooks/useResponsive';
 
 export default function WalletScreen() {
+  const { containerPadding, isTablet } = useResponsive();
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -48,78 +51,90 @@ export default function WalletScreen() {
   }, []);
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
+    <View style={{ flex: 1, paddingHorizontal: containerPadding, paddingTop: 16 }}>
       <Text variant="headlineMedium" style={{ marginBottom: 16 }}>Wallet</Text>
-      <TextInput
-        label="Amount (GHS)"
-        mode="outlined"
-        keyboardType="numeric"
-        value={amount}
-        onChangeText={setAmount}
-        style={{ marginBottom: 12 }}
-      />
-      <Button mode="contained" onPress={onDeposit} loading={loading} disabled={!amount}>
-        Initiate MoMo Deposit
-      </Button>
-      {result && <Text style={{ marginTop: 12 }}>{result}</Text>}
+      <View style={{ flex: 1, flexDirection: isTablet ? 'row' : 'column', gap: 16 }}>
+        <BlurView intensity={20} tint="light" style={{ flex: 1, borderRadius: 16, overflow: 'hidden', padding: 16 }}>
+          <Text variant="titleMedium" style={{ marginBottom: 8 }}>Deposit</Text>
+          <TextInput
+            label="Amount (GHS)"
+            mode="outlined"
+            keyboardType="numeric"
+            value={amount}
+            onChangeText={setAmount}
+            accessibilityLabel="Deposit amount in Ghana Cedis"
+            style={{ marginBottom: 12 }}
+          />
+          <Button mode="contained" onPress={onDeposit} loading={loading} disabled={!amount} accessibilityLabel="Initiate deposit">
+            Initiate MoMo Deposit
+          </Button>
+          {result && <Text style={{ marginTop: 12 }}>{result}</Text>}
 
-      <View style={{ marginTop: 24 }}>
-        <Text variant="titleMedium" style={{ marginBottom: 8 }}>Withdraw</Text>
-        <TextInput
-          label="Amount (GHS)"
-          mode="outlined"
-          keyboardType="numeric"
-          value={withdrawAmount}
-          onChangeText={setWithdrawAmount}
-          style={{ marginBottom: 8 }}
-        />
-        <TextInput
-          label="Destination (MoMo number or Bank acct)"
-          mode="outlined"
-          value={withdrawDest}
-          onChangeText={setWithdrawDest}
-          style={{ marginBottom: 8 }}
-        />
-        <Button
-          mode="outlined"
-          disabled={!withdrawAmount || !withdrawDest}
-          onPress={async () => {
-            setLoading(true);
-            setResult(null);
-            try {
-              const r = await requestWithdrawal(Number(withdrawAmount), { type: 'momo', account: withdrawDest });
-              setResult(JSON.stringify(r));
-              await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              show('Withdrawal requested');
-            } catch (e: any) {
-              setResult(e?.message || 'Failed');
-              await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-              show('Withdrawal failed');
-            } finally {
-              setLoading(false);
-            }
-          }}
-        >
-          Request Withdrawal
-        </Button>
-      </View>
+          <View style={{ marginTop: 24 }}>
+            <Text variant="titleMedium" style={{ marginBottom: 8 }}>Withdraw</Text>
+            <TextInput
+              label="Amount (GHS)"
+              mode="outlined"
+              keyboardType="numeric"
+              value={withdrawAmount}
+              onChangeText={setWithdrawAmount}
+              accessibilityLabel="Withdrawal amount in Ghana Cedis"
+              style={{ marginBottom: 8 }}
+            />
+            <TextInput
+              label="Destination (MoMo number or Bank acct)"
+              mode="outlined"
+              value={withdrawDest}
+              onChangeText={setWithdrawDest}
+              accessibilityLabel="Withdrawal destination account"
+              style={{ marginBottom: 8 }}
+            />
+            <Button
+              mode="outlined"
+              accessibilityLabel="Request withdrawal"
+              disabled={!withdrawAmount || !withdrawDest}
+              onPress={async () => {
+                setLoading(true);
+                setResult(null);
+                try {
+                  const r = await requestWithdrawal(Number(withdrawAmount), { type: 'momo', account: withdrawDest });
+                  setResult(JSON.stringify(r));
+                  await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                  show('Withdrawal requested');
+                } catch (e: any) {
+                  setResult(e?.message || 'Failed');
+                  await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+                  show('Withdrawal failed');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            >
+              Request Withdrawal
+            </Button>
+          </View>
+        </BlurView>
 
-      <Text variant="titleMedium" style={{ marginVertical: 12 }}>Transactions</Text>
-      {loadingTx ? (
-        <ActivityIndicator />
-      ) : (
-        <FlatList
-          data={txs}
-          keyExtractor={(i) => i.id}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await loadTx(); setRefreshing(false); }} />}
-          renderItem={({ item }) => (
-            <List.Item
-              title={`${item.type.toUpperCase()} · GHS ${item.amount.toFixed(2)}`}
-              description={`${item.status} · ${new Date(item.createdAt).toLocaleString()}`}
+        <BlurView intensity={20} tint="light" style={{ flex: 1, borderRadius: 16, overflow: 'hidden', padding: 8 }}>
+          <Text variant="titleMedium" style={{ margin: 8 }}>Transactions</Text>
+          {loadingTx ? (
+            <ActivityIndicator style={{ marginTop: 8 }} />
+          ) : (
+            <FlatList
+              data={txs}
+              keyExtractor={(i) => i.id}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await loadTx(); setRefreshing(false); }} />}
+              renderItem={({ item }) => (
+                <List.Item
+                  title={`${item.type.toUpperCase()} · GHS ${item.amount.toFixed(2)}`}
+                  description={`${item.status} · ${new Date(item.createdAt).toLocaleString()}`}
+                  accessibilityLabel={`${item.type} ${item.amount.toFixed(2)} Ghana Cedis, status ${item.status}`}
+                />
+              )}
             />
           )}
-        />
-      )}
+        </BlurView>
+      </View>
     </View>
   );
 }
