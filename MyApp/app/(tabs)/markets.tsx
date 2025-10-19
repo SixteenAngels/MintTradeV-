@@ -3,6 +3,7 @@ import { View, FlatList, RefreshControl } from 'react-native';
 import { Text, List, ActivityIndicator } from 'react-native-paper';
 import { fetchMarketList, type GseQuote } from '../services/marketService';
 import { Link } from 'expo-router';
+import { BlurView } from 'expo-blur';
 
 export default function MarketsScreen() {
   const [loading, setLoading] = useState(true);
@@ -44,17 +45,20 @@ export default function MarketsScreen() {
           keyExtractor={(item) => item.symbol}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           renderItem={({ item }) => (
-            <Link href={`/(tabs)/symbol/${item.symbol}`} asChild>
-              <List.Item
-                title={`${item.symbol}`}
-                description={`GHS ${item.price.toFixed(2)}  (${item.change >= 0 ? '+' : ''}${item.change.toFixed(2)} | ${item.changePercent.toFixed(2)}%)`}
-                right={() => (
-                  <Text style={{ color: item.change >= 0 ? '#10B981' : '#ef4444' }}>
-                    {item.change >= 0 ? '▲' : '▼'} {item.price.toFixed(2)}
-                  </Text>
-                )}
-              />
-            </Link>
+            <BlurView intensity={20} tint="light" style={{ borderRadius: 12, overflow: 'hidden', marginHorizontal: 8, marginVertical: 6 }}>
+              <Link href={`/(tabs)/symbol/${item.symbol}`} asChild>
+                <List.Item
+                  title={`${item.symbol}`}
+                  description={`GHS ${item.price.toFixed(2)}  (${item.change >= 0 ? '+' : ''}${item.change.toFixed(2)} | ${item.changePercent.toFixed(2)}%)`}
+                  accessibilityLabel={`${item.symbol} ${item.price.toFixed(2)} Ghana Cedis`}
+                  right={() => (
+                    <Text style={{ color: item.change >= 0 ? '#10B981' : '#ef4444' }}>
+                      {item.change >= 0 ? '▲' : '▼'} {item.price.toFixed(2)}
+                    </Text>
+                  )}
+                />
+              </Link>
+            </BlurView>
           )}
         />
       )}

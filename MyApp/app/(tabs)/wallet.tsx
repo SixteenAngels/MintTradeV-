@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, RefreshControl } from 'react-native';
 import { Text, TextInput, Button, List, ActivityIndicator } from 'react-native-paper';
+import * as Haptics from 'expo-haptics';
+import { useSnackbarStore } from '../store/useSnackbarStore';
 import { initiateDeposit, requestWithdrawal, getTransactions, type WalletTx } from '../services/walletService';
 
 export default function WalletScreen() {
@@ -10,14 +12,19 @@ export default function WalletScreen() {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawDest, setWithdrawDest] = useState('');
 
+  const show = useSnackbarStore((s) => s.show);
   const onDeposit = async () => {
     setLoading(true);
     setResult(null);
     try {
       const r = await initiateDeposit(Number(amount || 0), 'momo');
       setResult(JSON.stringify(r));
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      show('Deposit initiated');
     } catch (e: any) {
       setResult(e?.message || 'Failed');
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      show('Deposit failed');
     } finally {
       setLoading(false);
     }
@@ -82,8 +89,12 @@ export default function WalletScreen() {
             try {
               const r = await requestWithdrawal(Number(withdrawAmount), { type: 'momo', account: withdrawDest });
               setResult(JSON.stringify(r));
+              await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              show('Withdrawal requested');
             } catch (e: any) {
               setResult(e?.message || 'Failed');
+              await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+              show('Withdrawal failed');
             } finally {
               setLoading(false);
             }

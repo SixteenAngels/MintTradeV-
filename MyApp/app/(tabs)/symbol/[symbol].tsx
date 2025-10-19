@@ -7,6 +7,8 @@ import { PriceChart } from '../../components/PriceChart';
 import { submitOrder } from '../../services/tradeService';
 import { useSecurityStore } from '../../store/useSecurityStore';
 import { useWatchlistStore } from '../../store/useWatchlistStore';
+import * as Haptics from 'expo-haptics';
+import { useSnackbarStore } from '../../store/useSnackbarStore';
 
 const ranges = [
   { value: '1d', label: '1D' },
@@ -28,6 +30,7 @@ export default function SymbolScreen() {
   const { hasPin, verifyPin, biometricsEnabled, authenticateBiometric } = useSecurityStore();
   const toggleWatch = useWatchlistStore((s) => s.toggle);
   const inWatch = useWatchlistStore((s) => s.has(symbol!));
+  const show = useSnackbarStore((s) => s.show);
 
   useEffect(() => {
     let mounted = true;
@@ -101,8 +104,15 @@ export default function SymbolScreen() {
                   const ok = await verifyPin(pin);
                   if (!ok) return;
                 }
-                await submitOrder({ symbol: symbol!, side, qty: Number(qty || 0) });
-                setSheetOpen(false);
+                try {
+                  await submitOrder({ symbol: symbol!, side, qty: Number(qty || 0) });
+                  await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                  show('Order submitted');
+                  setSheetOpen(false);
+                } catch (e: any) {
+                  await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+                  show(e?.message || 'Order failed');
+                }
               }}
               accessibilityLabel="Confirm order"
               accessibilityHint="Submits your order for execution"

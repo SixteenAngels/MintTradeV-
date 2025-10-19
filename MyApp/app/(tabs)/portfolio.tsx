@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { View, FlatList, RefreshControl } from 'react-native';
 import { Text, List, ActivityIndicator } from 'react-native-paper';
 import { getHoldings, type Holding } from '../services/portfolioService';
+import { BlurView } from 'expo-blur';
 
 function formatCurrency(v: number) {
   return `GHS ${v.toFixed(2)}`;
@@ -61,15 +62,18 @@ export default function PortfolioScreen() {
             const cost = item.avgCost * item.quantity;
             const pnl = mv - cost;
             return (
-              <List.Item
-                title={`${item.symbol} · ${item.quantity} sh`}
-                description={`Avg ${formatCurrency(item.avgCost)} · MV ${formatCurrency(mv)}`}
-                right={() => (
-                  <Text style={{ color: pnl >= 0 ? '#10B981' : '#ef4444' }}>
-                    {pnl >= 0 ? '+' : ''}{pnl.toFixed(2)}
-                  </Text>
-                )}
-              />
+              <BlurView intensity={20} tint="light" style={{ borderRadius: 12, overflow: 'hidden', marginHorizontal: 8, marginVertical: 6 }}>
+                <List.Item
+                  title={`${item.symbol} · ${item.quantity} sh`}
+                  description={`Avg ${formatCurrency(item.avgCost)} · MV ${formatCurrency(mv)}`}
+                  accessibilityLabel={`${item.symbol} ${item.quantity} shares, market value ${formatCurrency(mv)}`}
+                  right={() => (
+                    <Text style={{ color: pnl >= 0 ? '#10B981' : '#ef4444' }}>
+                      {pnl >= 0 ? '+' : ''}{pnl.toFixed(2)}
+                    </Text>
+                  )}
+                />
+              </BlurView>
             );
           }}
         />

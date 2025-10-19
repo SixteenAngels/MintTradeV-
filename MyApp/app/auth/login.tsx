@@ -5,17 +5,25 @@ import { Link } from 'expo-router';
 import { InputField } from '../components/InputField';
 import { Button } from '../components/Button';
 import { useAuthStore } from '../store/useAuthStore';
+import * as Haptics from 'expo-haptics';
+import { useSnackbarStore } from '../store/useSnackbarStore';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const show = useSnackbarStore((s) => s.show);
   const signIn = useAuthStore((s) => s.signIn);
 
   const onLogin = async () => {
     setLoading(true);
     try {
       await signIn(email.trim(), password);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      show('Logged in');
+    } catch (e: any) {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      show(e?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
