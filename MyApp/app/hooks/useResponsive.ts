@@ -18,6 +18,9 @@ export function useResponsive() {
 
   const spacing = isDesktop ? 24 : isTabletFull ? 20 : isSplit ? 14 : 12;
   const containerPadding = Math.max(spacing, insets.left, insets.right);
+  const cardGap = isDesktop ? 16 : isTabletFull ? 12 : 8;
+  const cardPadding = isDesktop ? 16 : isTabletFull ? 14 : 12;
+  const cardRadius = isDesktop ? 20 : 16;
   const twoPane = isTabletFull || isDesktop; // enable two-pane layouts only when full width
 
   return useMemo(
@@ -34,7 +37,10 @@ export function useResponsive() {
       containerPadding,
       numColumns,
       twoPane,
+      cardGap,
+      cardPadding,
+      cardRadius,
     }),
-    [width, height, insets, orientation, isTablet, isSplit, isTabletFull, isDesktop, spacing, containerPadding, numColumns, twoPane]
+    [width, height, insets, orientation, isTablet, isSplit, isTabletFull, isDesktop, spacing, containerPadding, numColumns, twoPane, cardGap, cardPadding, cardRadius]
   );
 }
