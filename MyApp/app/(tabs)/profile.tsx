@@ -8,7 +8,7 @@ import { BlurView } from 'expo-blur';
 import { useResponsive } from '../hooks/useResponsive';
 
 export default function ProfileScreen() {
-  const { containerPadding, isTablet } = useResponsive();
+  const { containerPadding, twoPane } = useResponsive();
   const { init, loading, biometricsAvailable, biometricsEnabled, setBiometricsEnabled, hasPin, setPin } = useSecurityStore();
   const [kyc, setKyc] = useState<{ status: string; reason?: string } | null>(null);
   const [pin, setPinLocal] = useState('');
@@ -29,7 +29,7 @@ export default function ProfileScreen() {
   return (
     <View style={{ flex: 1, paddingHorizontal: containerPadding, paddingTop: 16 }}>
       <Text variant="headlineMedium" style={{ marginBottom: 16 }}>Profile</Text>
-      <View style={{ flex: 1, flexDirection: isTablet ? 'row' : 'column', gap: 16 }}>
+      <View style={{ flex: 1, flexDirection: twoPane ? 'row' : 'column', gap: 16 }}>
         <BlurView intensity={20} tint="light" style={{ flex: 1, borderRadius: 16, overflow: 'hidden', padding: 16 }}>
           <Text style={{ marginBottom: 8 }}>Security</Text>
           <TextInput

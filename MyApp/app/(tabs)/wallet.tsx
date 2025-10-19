@@ -8,7 +8,7 @@ import { BlurView } from 'expo-blur';
 import { useResponsive } from '../hooks/useResponsive';
 
 export default function WalletScreen() {
-  const { containerPadding, isTablet } = useResponsive();
+  const { containerPadding, twoPane } = useResponsive();
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -53,7 +53,7 @@ export default function WalletScreen() {
   return (
     <View style={{ flex: 1, paddingHorizontal: containerPadding, paddingTop: 16 }}>
       <Text variant="headlineMedium" style={{ marginBottom: 16 }}>Wallet</Text>
-      <View style={{ flex: 1, flexDirection: isTablet ? 'row' : 'column', gap: 16 }}>
+      <View style={{ flex: 1, flexDirection: twoPane ? 'row' : 'column', gap: 16 }}>
         <BlurView intensity={20} tint="light" style={{ flex: 1, borderRadius: 16, overflow: 'hidden', padding: 16 }}>
           <Text variant="titleMedium" style={{ marginBottom: 8 }}>Deposit</Text>
           <TextInput
