@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { View } from 'react-native';
-import { Text, TextInput, Button } from 'react-native-paper';
-import { initiateDeposit, requestWithdrawal } from '../services/walletService';
+import React, { useEffect, useState } from 'react';
+import { View, FlatList, RefreshControl } from 'react-native';
+import { Text, TextInput, Button, List, ActivityIndicator } from 'react-native-paper';
+import { initiateDeposit, requestWithdrawal, getTransactions, type WalletTx } from '../services/walletService';
 
 export default function WalletScreen() {
   const [amount, setAmount] = useState('');
@@ -22,6 +22,23 @@ export default function WalletScreen() {
       setLoading(false);
     }
   };
+
+  const [txs, setTxs] = useState<WalletTx[]>([]);
+  const [loadingTx, setLoadingTx] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function loadTx() {
+    setLoadingTx(true);
+    try {
+      const data = await getTransactions();
+      setTxs(data);
+    } finally {
+      setLoadingTx(false);
+    }
+  }
+  useEffect(() => {
+    loadTx();
+  }, []);
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
@@ -75,6 +92,23 @@ export default function WalletScreen() {
           Request Withdrawal
         </Button>
       </View>
+
+      <Text variant="titleMedium" style={{ marginVertical: 12 }}>Transactions</Text>
+      {loadingTx ? (
+        <ActivityIndicator />
+      ) : (
+        <FlatList
+          data={txs}
+          keyExtractor={(i) => i.id}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await loadTx(); setRefreshing(false); }} />}
+          renderItem={({ item }) => (
+            <List.Item
+              title={`${item.type.toUpperCase()} · GHS ${item.amount.toFixed(2)}`}
+              description={`${item.status} · ${new Date(item.createdAt).toLocaleString()}`}
+            />
+          )}
+        />
+      )}
     </View>
   );
 }

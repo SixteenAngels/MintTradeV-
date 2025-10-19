@@ -30,3 +30,15 @@ export async function verifyPayment(reference: string) {
 export async function requestWithdrawal(amount: number, destination: { type: 'momo' | 'bank'; account: string }) {
   return api('/api/withdraw', { method: 'POST', body: JSON.stringify({ amount, destination }) });
 }
+
+export type WalletTx = {
+  id: string;
+  amount: number;
+  type: 'deposit' | 'withdraw' | 'trade' | 'fee';
+  status: string;
+  createdAt: string | number;
+};
+
+export async function getTransactions(): Promise<WalletTx[]> {
+  return api('/api/transactions', { method: 'GET' });
+}
