@@ -30,6 +30,9 @@ export default function LoginScreen() {
       <Text style={{ marginTop: 16 }}>
         Don't have an account? <Link href="/auth/signup">Sign up</Link>
       </Text>
+      <Text style={{ marginTop: 12 }}>
+        Prefer phone? <Link href="/auth/phone">Use phone OTP</Link>
+      </Text>
     </View>
   );
 }
