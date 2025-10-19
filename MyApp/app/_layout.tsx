@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { PaperProvider, MD3LightTheme as DefaultTheme, MD3DarkTheme } from 'react-native-paper';
-import { Platform, useColorScheme } from 'react-native';
+import { PaperProvider, MD3LightTheme as DefaultTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
+import { Platform, useColorScheme, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from './store/useAuthStore';
@@ -42,20 +42,31 @@ export default function RootLayout() {
   const { visible, message, hide } = useSnackbarStore();
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
+
+  const fontScale = isTablet ? 1.15 : 1.0;
+  const baseLight = {
+    ...DefaultTheme,
+    colors: { ...DefaultTheme.colors, primary: '#00B67A', secondary: '#10B981', background: '#FFFFFF', surface: '#FFFFFF' },
+    roundness: 16,
+  };
+  const baseDark = {
+    ...MD3DarkTheme,
+    colors: { ...MD3DarkTheme.colors, primary: '#00B67A', secondary: '#10B981' },
+    roundness: 16,
+  };
+
+  function withScaledFonts(theme: typeof baseLight) {
+    const fonts = Object.fromEntries(
+      Object.entries(theme.fonts).map(([k, v]: any) => [k, { ...v, fontSize: Math.round((v.fontSize || 14) * fontScale), lineHeight: v.lineHeight ? Math.round(v.lineHeight * fontScale) : undefined }])
+    );
+    return { ...theme, fonts } as typeof theme;
+  }
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <PaperProvider
-          theme={isDark ? {
-            ...MD3DarkTheme,
-            colors: { ...MD3DarkTheme.colors, primary: '#00B67A', secondary: '#10B981' },
-            roundness: 16,
-          } : {
-            ...DefaultTheme,
-            colors: { ...DefaultTheme.colors, primary: '#00B67A', secondary: '#10B981', background: '#FFFFFF', surface: '#FFFFFF' },
-            roundness: 16,
-          }}
-        >
+        <PaperProvider theme={isDark ? withScaledFonts(baseDark) : withScaledFonts(baseLight)}>
           <StatusBar style={isDark ? 'light' : 'dark'} />
           <AuthGate>
             <Stack screenOptions={{ headerShown: false }}>
