@@ -56,6 +56,15 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="qr"
+        options={{
+          title: 'Scan',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="qr-code-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

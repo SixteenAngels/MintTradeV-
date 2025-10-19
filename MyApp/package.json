@@ -14,7 +14,12 @@
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.11.0",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@wagmi/core": "^2.22.1",
+    "@walletconnect/ethereum-provider": "^2.22.4",
+    "@web3modal/wagmi": "^5.1.11",
     "expo": "~54.0.13",
+    "expo-barcode-scanner": "^13.0.1",
+    "expo-camera": "~17.0.8",
     "expo-constants": "~18.0.9",
     "expo-crypto": "~15.0.7",
     "expo-file-system": "^19.0.17",
@@ -43,6 +48,7 @@
     "react-native-web": "^0.21.0",
     "victory": "^37.3.6",
     "victory-native": "^41.20.1",
+    "viem": "^2.38.3",
     "zustand": "4.5.5"
   },
   "devDependencies": {
