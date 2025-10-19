@@ -5,9 +5,10 @@ import { fetchMarketList, type GseQuote } from '../services/marketService';
 import { Link } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { useResponsive } from '../hooks/useResponsive';
+import * as Haptics from 'expo-haptics';
 
 export default function MarketsScreen() {
-  const { containerPadding } = useResponsive();
+  const { containerPadding, numColumns } = useResponsive();
   const [loading, setLoading] = useState(true);
   const [quotes, setQuotes] = useState<GseQuote[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -33,6 +34,7 @@ export default function MarketsScreen() {
       setQuotes(data);
     } finally {
       setRefreshing(false);
+      try { await Haptics.selectionAsync(); } catch {}
     }
   };
 
@@ -45,9 +47,15 @@ export default function MarketsScreen() {
         <FlatList
           data={quotes}
           keyExtractor={(item) => item.symbol}
+          numColumns={numColumns}
+          columnWrapperStyle={numColumns > 1 ? { gap: 12, paddingHorizontal: containerPadding } : undefined}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           renderItem={({ item }) => (
-            <BlurView intensity={20} tint="light" style={{ borderRadius: 12, overflow: 'hidden', marginHorizontal: 8, marginVertical: 6 }}>
+            <BlurView
+              intensity={20}
+              tint="light"
+              style={{ flex: 1, borderRadius: 12, overflow: 'hidden', marginVertical: 6, marginHorizontal: numColumns > 1 ? 0 : 8 }}
+            >
               <Link href={`/(tabs)/symbol/${item.symbol}`} asChild>
                 <List.Item
                   title={`${item.symbol}`}

@@ -4,13 +4,14 @@ import { Text, List, ActivityIndicator } from 'react-native-paper';
 import { getHoldings, type Holding } from '../services/portfolioService';
 import { BlurView } from 'expo-blur';
 import { useResponsive } from '../hooks/useResponsive';
+import * as Haptics from 'expo-haptics';
 
 function formatCurrency(v: number) {
   return `GHS ${v.toFixed(2)}`;
 }
 
 export default function PortfolioScreen() {
-  const { containerPadding } = useResponsive();
+  const { containerPadding, numColumns } = useResponsive();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [holdings, setHoldings] = useState<Holding[]>([]);
@@ -43,6 +44,7 @@ export default function PortfolioScreen() {
       await load();
     } finally {
       setRefreshing(false);
+      try { await Haptics.selectionAsync(); } catch {}
     }
   };
 
@@ -58,13 +60,19 @@ export default function PortfolioScreen() {
         <FlatList
           data={holdings}
           keyExtractor={(item) => item.symbol}
+          numColumns={numColumns}
+          columnWrapperStyle={numColumns > 1 ? { gap: 12, paddingHorizontal: containerPadding } : undefined}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           renderItem={({ item }) => {
             const mv = (item.lastPrice ?? item.avgCost) * item.quantity;
             const cost = item.avgCost * item.quantity;
             const pnl = mv - cost;
             return (
-              <BlurView intensity={20} tint="light" style={{ borderRadius: 12, overflow: 'hidden', marginHorizontal: 8, marginVertical: 6 }}>
+              <BlurView
+                intensity={20}
+                tint="light"
+                style={{ flex: 1, borderRadius: 12, overflow: 'hidden', marginVertical: 6, marginHorizontal: numColumns > 1 ? 0 : 8 }}
+              >
                 <List.Item
                   title={`${item.symbol} · ${item.quantity} sh`}
                   description={`Avg ${formatCurrency(item.avgCost)} · MV ${formatCurrency(mv)}`}
