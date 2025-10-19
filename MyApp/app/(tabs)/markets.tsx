@@ -4,8 +4,10 @@ import { Text, List, ActivityIndicator } from 'react-native-paper';
 import { fetchMarketList, type GseQuote } from '../services/marketService';
 import { Link } from 'expo-router';
 import { BlurView } from 'expo-blur';
+import { useResponsive } from '../hooks/useResponsive';
 
 export default function MarketsScreen() {
+  const { containerPadding } = useResponsive();
   const [loading, setLoading] = useState(true);
   const [quotes, setQuotes] = useState<GseQuote[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -35,7 +37,7 @@ export default function MarketsScreen() {
   };
 
   return (
-    <View style={{ flex: 1, padding: 12 }}>
+    <View style={{ flex: 1, paddingHorizontal: containerPadding, paddingTop: 12 }}>
       <Text variant="headlineMedium" style={{ margin: 8 }}>Markets</Text>
       {loading ? (
         <ActivityIndicator style={{ marginTop: 24 }} />

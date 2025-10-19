@@ -3,12 +3,14 @@ import { View, FlatList, RefreshControl } from 'react-native';
 import { Text, List, ActivityIndicator } from 'react-native-paper';
 import { getHoldings, type Holding } from '../services/portfolioService';
 import { BlurView } from 'expo-blur';
+import { useResponsive } from '../hooks/useResponsive';
 
 function formatCurrency(v: number) {
   return `GHS ${v.toFixed(2)}`;
 }
 
 export default function PortfolioScreen() {
+  const { containerPadding } = useResponsive();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [holdings, setHoldings] = useState<Holding[]>([]);
@@ -45,7 +47,7 @@ export default function PortfolioScreen() {
   };
 
   return (
-    <View style={{ flex: 1, padding: 12 }}>
+    <View style={{ flex: 1, paddingHorizontal: containerPadding, paddingTop: 12 }}>
       <Text variant="headlineMedium" style={{ margin: 8 }}>Portfolio</Text>
       <Text style={{ marginHorizontal: 8, marginBottom: 8 }}>
         Value: {formatCurrency(totals.marketValue)}  |  P&L: {formatCurrency(totals.pnl)} ({totals.pnlPct.toFixed(2)}%)
