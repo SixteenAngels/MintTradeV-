@@ -104,6 +104,8 @@ export default function SymbolScreen() {
                 await submitOrder({ symbol: symbol!, side, qty: Number(qty || 0) });
                 setSheetOpen(false);
               }}
+              accessibilityLabel="Confirm order"
+              accessibilityHint="Submits your order for execution"
             >
               Confirm
             </Button>

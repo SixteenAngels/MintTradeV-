@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { PaperProvider, MD3LightTheme as DefaultTheme } from 'react-native-paper';
-import { Platform } from 'react-native';
+import { PaperProvider, MD3LightTheme as DefaultTheme, MD3DarkTheme } from 'react-native-paper';
+import { Platform, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from './store/useAuthStore';
@@ -40,23 +40,23 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   const { visible, message, hide } = useSnackbarStore();
+  const scheme = useColorScheme();
+  const isDark = scheme === 'dark';
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <PaperProvider
-          theme={{
+          theme={isDark ? {
+            ...MD3DarkTheme,
+            colors: { ...MD3DarkTheme.colors, primary: '#00B67A', secondary: '#10B981' },
+            roundness: 16,
+          } : {
             ...DefaultTheme,
-            colors: {
-              ...DefaultTheme.colors,
-              primary: '#00B67A',
-              secondary: '#10B981',
-              background: '#FFFFFF',
-              surface: '#FFFFFF',
-            },
+            colors: { ...DefaultTheme.colors, primary: '#00B67A', secondary: '#10B981', background: '#FFFFFF', surface: '#FFFFFF' },
             roundness: 16,
           }}
         >
-          <StatusBar style="dark" />
+          <StatusBar style={isDark ? 'light' : 'dark'} />
           <AuthGate>
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(tabs)" />

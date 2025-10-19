@@ -26,7 +26,7 @@ export default function LoginScreen() {
       <Text variant="headlineMedium" style={{ marginBottom: 16 }}>Welcome back</Text>
       <InputField label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
       <InputField label="Password" value={password} onChangeText={setPassword} secureTextEntry />
-      <Button onPress={onLogin} loading={loading} style={{ marginTop: 8 }}>Login</Button>
+      <Button onPress={onLogin} loading={loading} style={{ marginTop: 8 }} accessibilityLabel="Log in" accessibilityHint="Authenticate with email and password">Login</Button>
       <Text style={{ marginTop: 16 }}>
         Don't have an account? <Link href="/auth/signup">Sign up</Link>
       </Text>

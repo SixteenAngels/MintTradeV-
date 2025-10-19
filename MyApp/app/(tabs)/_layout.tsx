@@ -8,6 +8,7 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: true,
         headerTitleAlign: 'center',
+        headerLargeTitle: true,
         tabBarLabelStyle: { fontSize: 12 },
       }}
     >
