@@ -10,6 +10,7 @@ admin.initializeApp();
 const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.post('/initiate-payment', async (req, res) => {
   try {
@@ -116,3 +117,16 @@ app.get('/market', async (req, res) => {
 });
 
 export const api = functions.https.onRequest(app);
+
+// Webhook for Zeepay to confirm payments
+export const zeepayWebhook = functions.https.onRequest(async (req, res) => {
+  try {
+    // TODO: validate signature
+    const { userId, reference, amount, status } = req.body || {};
+    await writeLedger({ userId, amount: Number(amount || 0), currency: 'GHS', type: 'deposit', status: status === 'success' ? 'completed' : 'failed', provider: 'zeepay', providerRef: reference });
+    await db.collection('wallets').doc(userId).collection('transactions').add({ amount: Number(amount || 0), type: 'deposit', status, providerRef: reference, createdAt: admin.firestore.FieldValue.serverTimestamp() });
+    res.json({ ok: true });
+  } catch (e: any) {
+    res.status(400).send(e.message || 'webhook failed');
+  }
+});

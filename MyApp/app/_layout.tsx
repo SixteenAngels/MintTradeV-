@@ -6,6 +6,15 @@ import { Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from './store/useAuthStore';
+import * as Sentry from 'sentry-expo';
+import { Snackbar } from 'react-native-paper';
+import { useSnackbarStore } from './store/useSnackbarStore';
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  enableInExpoDevelopment: true,
+  debug: false,
+});
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -30,6 +39,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 export default function RootLayout() {
+  const { visible, message, hide } = useSnackbarStore();
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
@@ -53,6 +63,9 @@ export default function RootLayout() {
               <Stack.Screen name="auth/login" />
               <Stack.Screen name="auth/signup" />
             </Stack>
+            <Snackbar visible={visible} onDismiss={hide} duration={3000} style={{ marginBottom: 24 }}>
+              {message}
+            </Snackbar>
           </AuthGate>
         </PaperProvider>
       </SafeAreaProvider>
