@@ -108,3 +108,11 @@ export const useAuthStore = create<AuthState>()(
 export async function getFirebaseAuth(): Promise<Auth> {
   return ensureAuth();
 }
+
+export function getFirebaseApp(): FirebaseApp {
+  if (!firebaseApp) {
+    // Initialize if not already done
+    void ensureAuth();
+  }
+  return firebaseApp!;
+}
