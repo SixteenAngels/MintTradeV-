@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Text, Switch, TextInput, Button } from 'react-native-paper';
+import { Link } from 'expo-router';
 import { getKycStatus, submitKyc } from '../services/kycService';
 import { useSecurityStore } from '../store/useSecurityStore';
 
@@ -54,10 +55,9 @@ export default function ProfileScreen() {
       <Text style={{ marginBottom: 8 }}>KYC</Text>
       <Text>Status: {kyc?.status ?? 'unknown'}</Text>
       {kyc?.reason ? <Text>Reason: {kyc.reason}</Text> : null}
-        <Text style={{ marginTop: 8, color: '#2563eb' }}>Go to full KYC: </Text>
-        <Button mode="text" onPress={() => { /* router.push is implicit via Link, but keep simple */ }}>
-          KYC Screen is in Tabs
-        </Button>
+        <Text style={{ marginTop: 8, color: '#2563eb' }}>
+          Go to full KYC: <Link href="/(tabs)/kyc">Open KYC</Link>
+        </Text>
       <Button
         mode="outlined"
         style={{ marginTop: 8 }}
