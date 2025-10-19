@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.api = void 0;
+exports.finnhubQuote = exports.zeepayWebhook = exports.api = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const axios_1 = __importDefault(require("axios"));
@@ -47,6 +47,7 @@ admin.initializeApp();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({ origin: true }));
 app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({ extended: true }));
 app.post('/initiate-payment', async (req, res) => {
     try {
         const userId = await (0, util_1.assertAuth)(req);
@@ -152,3 +153,33 @@ app.get('/market', async (req, res) => {
     }
 });
 exports.api = functions.https.onRequest(app);
+// Webhook for Zeepay to confirm payments
+exports.zeepayWebhook = functions.https.onRequest(async (req, res) => {
+    try {
+        // TODO: validate signature
+        const { userId, reference, amount, status } = req.body || {};
+        await (0, util_1.writeLedger)({ userId, amount: Number(amount || 0), currency: 'GHS', type: 'deposit', status: status === 'success' ? 'completed' : 'failed', provider: 'zeepay', providerRef: reference });
+        await util_1.db.collection('wallets').doc(userId).collection('transactions').add({ amount: Number(amount || 0), type: 'deposit', status, providerRef: reference, createdAt: admin.firestore.FieldValue.serverTimestamp() });
+        res.json({ ok: true });
+    }
+    catch (e) {
+        res.status(400).send(e.message || 'webhook failed');
+    }
+});
+// Finnhub proxy for real-time quotes (supports international + Ghana via .GH suffix)
+exports.finnhubQuote = functions.https.onRequest(async (req, res) => {
+    try {
+        const symbol = req.query.symbol || '';
+        if (!symbol)
+            return res.status(400).send('symbol required');
+        const token = process.env.FINNHUB_API_KEY;
+        if (!token)
+            return res.status(500).send('server missing FINNHUB_API_KEY');
+        const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${token}`;
+        const r = await axios_1.default.get(url);
+        res.json(r.data);
+    }
+    catch (e) {
+        res.status(400).send(e.message || 'quote failed');
+    }
+});
