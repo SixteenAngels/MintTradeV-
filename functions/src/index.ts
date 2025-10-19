@@ -130,3 +130,18 @@ export const zeepayWebhook = functions.https.onRequest(async (req, res) => {
     res.status(400).send(e.message || 'webhook failed');
   }
 });
+
+// Finnhub proxy for real-time quotes (supports international + Ghana via .GH suffix)
+export const finnhubQuote = functions.https.onRequest(async (req, res) => {
+  try {
+    const symbol = (req.query.symbol as string) || '';
+    if (!symbol) return res.status(400).send('symbol required');
+    const token = process.env.FINNHUB_API_KEY;
+    if (!token) return res.status(500).send('server missing FINNHUB_API_KEY');
+    const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${token}`;
+    const r = await axios.get(url);
+    res.json(r.data);
+  } catch (e: any) {
+    res.status(400).send(e.message || 'quote failed');
+  }
+});

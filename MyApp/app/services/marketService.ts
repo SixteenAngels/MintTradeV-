@@ -8,6 +8,7 @@ export type GseQuote = {
 };
 
 const BASE_URL = (process.env.EXPO_PUBLIC_GSE_API_BASE_URL ?? 'https://dev.kwayisi.org/apis/gse').replace(/\/$/, '');
+const API_BASE = process.env.EXPO_PUBLIC_API_BASE ?? '';
 
 export async function fetchMarketList(): Promise<GseQuote[]> {
   // Example endpoint; adjust mapping as needed when wiring official feed
@@ -28,4 +29,11 @@ export async function fetchSymbolHistory(symbol: string, range: '1d'|'1w'|'1m'|'
   if (!res.ok) throw new Error(`History fetch failed: ${res.status}`);
   const data = await res.json();
   return data;
+}
+
+export async function fetchGlobalQuote(symbol: string) {
+  // Uses Firebase Function finnhubQuote to avoid exposing token in client
+  const res = await fetch(`${API_BASE}/finnhubQuote?symbol=${encodeURIComponent(symbol)}`);
+  if (!res.ok) throw new Error(`Quote fetch failed: ${res.status}`);
+  return res.json();
 }
