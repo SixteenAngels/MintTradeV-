@@ -10,7 +10,9 @@
   "dependencies": {
     "firebase-admin": "^12.5.0",
     "firebase-functions": "^5.1.0",
-    "axios": "^1.7.7"
+    "axios": "^1.7.7",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
   },
   "devDependencies": { "typescript": "~5.9.2" }
 }

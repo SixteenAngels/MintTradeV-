@@ -1,35 +1,118 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import axios from 'axios';
+import express from 'express';
+import cors from 'cors';
+import { assertAuth, db, writeLedger } from './util';
 
 admin.initializeApp();
-const db = admin.firestore();
 
-export const initiatePayment = functions.https.onRequest(async (req, res) => {
-  // TODO: Implement Zeepay initiation securely
-  res.json({ ok: true, reference: 'demo-ref' });
+const app = express();
+app.use(cors({ origin: true }));
+app.use(express.json());
+
+app.post('/initiate-payment', async (req, res) => {
+  try {
+    const userId = await assertAuth(req);
+    const { amount, channel } = req.body as { amount: number; channel: 'momo' | 'card' };
+    // TODO: Call Zeepay to create payment and return checkout info
+    const providerRef = `demo-${Date.now()}`;
+    await writeLedger({ userId, amount, currency: 'GHS', type: 'deposit', status: 'pending', provider: 'zeepay', providerRef });
+    res.json({ reference: providerRef, checkoutUrl: 'https://example.com/pay' });
+  } catch (e: any) {
+    res.status(400).send(e.message || 'initiate failed');
+  }
 });
 
-export const verifyPayment = functions.https.onRequest(async (req, res) => {
-  res.json({ ok: true });
+app.post('/verify-payment', async (req, res) => {
+  try {
+    const userId = await assertAuth(req);
+    const { reference } = req.body as { reference: string };
+    // TODO: Verify Zeepay reference then credit wallet and ledger status
+    await writeLedger({ userId, amount: 0, currency: 'GHS', type: 'deposit', status: 'completed', provider: 'zeepay', providerRef: reference });
+    res.json({ ok: true });
+  } catch (e: any) {
+    res.status(400).send(e.message || 'verify failed');
+  }
 });
 
-export const withdraw = functions.https.onRequest(async (req, res) => {
-  res.json({ ok: true });
+app.post('/withdraw', async (req, res) => {
+  try {
+    const userId = await assertAuth(req);
+    const { amount, destination } = req.body as { amount: number; destination: { type: 'momo' | 'bank'; account: string } };
+    // TODO: Validate KYC & balance, call Zeepay payout
+    await writeLedger({ userId, amount: -Math.abs(amount), currency: 'GHS', type: 'withdraw', status: 'pending', provider: 'zeepay' });
+    res.json({ ok: true });
+  } catch (e: any) {
+    res.status(400).send(e.message || 'withdraw failed');
+  }
 });
 
-export const kycSubmit = functions.https.onRequest(async (req, res) => {
-  res.json({ status: 'pending' });
+app.post('/kyc/submit', async (req, res) => {
+  try {
+    const userId = await assertAuth(req);
+    // TODO: Handle multipart, send to Smile ID, store references
+    await db.collection('users').doc(userId).set({ kycStatus: 'pending' }, { merge: true });
+    res.json({ status: 'pending' });
+  } catch (e: any) {
+    res.status(400).send(e.message || 'kyc submit failed');
+  }
 });
 
-export const kycStatus = functions.https.onRequest(async (req, res) => {
-  res.json({ status: 'pending' });
+app.get('/kyc/status', async (req, res) => {
+  try {
+    const userId = await assertAuth(req);
+    const doc = await db.collection('users').doc(userId).get();
+    res.json({ status: (doc.get('kycStatus') as string) || 'not_started' });
+  } catch (e: any) {
+    res.status(400).send(e.message || 'kyc status failed');
+  }
 });
 
-export const marketProxy = functions.https.onRequest(async (req, res) => {
-  const base = 'https://dev.kwayisi.org/apis/gse';
-  const path = req.query.path as string;
-  const url = `${base}/${path || 'live'}`;
-  const r = await axios.get(url);
-  res.json(r.data);
+app.get('/portfolio', async (req, res) => {
+  try {
+    const userId = await assertAuth(req);
+    const snap = await db.collection('portfolios').doc(userId).collection('holdings').get();
+    const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    res.json(data);
+  } catch (e: any) {
+    res.status(400).send(e.message || 'portfolio failed');
+  }
 });
+
+app.get('/transactions', async (req, res) => {
+  try {
+    const userId = await assertAuth(req);
+    const snap = await db.collection('wallets').doc(userId).collection('transactions').orderBy('createdAt', 'desc').limit(100).get();
+    const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    res.json(data);
+  } catch (e: any) {
+    res.status(400).send(e.message || 'transactions failed');
+  }
+});
+
+app.post('/submit-order', async (req, res) => {
+  try {
+    const userId = await assertAuth(req);
+    const { symbol, side, qty } = req.body as { symbol: string; side: 'buy' | 'sell'; qty: number };
+    // TODO: Validate funds and route to broker adapter; record order
+    await db.collection('orders').add({ userId, symbol, side, qty, status: 'pending', createdAt: admin.firestore.FieldValue.serverTimestamp() });
+    res.json({ ok: true });
+  } catch (e: any) {
+    res.status(400).send(e.message || 'order failed');
+  }
+});
+
+app.get('/market', async (req, res) => {
+  try {
+    const base = 'https://dev.kwayisi.org/apis/gse';
+    const path = (req.query.path as string) || 'live';
+    const url = `${base}/${path}`;
+    const r = await axios.get(url);
+    res.json(r.data);
+  } catch (e: any) {
+    res.status(400).send(e.message || 'market failed');
+  }
+});
+
+export const api = functions.https.onRequest(app);
