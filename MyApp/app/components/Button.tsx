@@ -8,9 +8,11 @@ type Props = {
   disabled?: boolean;
   loading?: boolean;
   style?: any;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 };
 
-export function Button({ children, onPress, mode = 'contained', disabled, loading, style }: Props) {
+export function Button({ children, onPress, mode = 'contained', disabled, loading, style, accessibilityLabel, accessibilityHint }: Props) {
   return (
     <PaperButton
       mode={mode}
@@ -19,6 +21,8 @@ export function Button({ children, onPress, mode = 'contained', disabled, loadin
       loading={loading}
       style={style}
       contentStyle={{ paddingVertical: 8 }}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
     >
       {children}
     </PaperButton>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function TabsLayout() {
   return (
@@ -8,7 +8,6 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: true,
         headerTitleAlign: 'center',
-        headerLargeTitle: true,
         tabBarLabelStyle: { fontSize: 12 },
       }}
     >

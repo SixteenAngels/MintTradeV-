@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import { initializeApp, FirebaseApp } from 'firebase/app';
@@ -87,18 +87,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-store',
-      storage: {
-        getItem: async (name) => {
-          const str = await AsyncStorage.getItem(name);
-          return str ?? null;
-        },
-        setItem: async (name, value) => {
-          await AsyncStorage.setItem(name, value);
-        },
-        removeItem: async (name) => {
-          await AsyncStorage.removeItem(name);
-        },
-      },
+      storage: createJSONStorage(() => AsyncStorage),
       // Only persist minimal UI state; user session comes from Firebase persistence
       partialize: (state) => ({ initializing: state.initializing }),
     }

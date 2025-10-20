@@ -1,4 +1,4 @@
-import { createWeb3Modal, defaultConfig } from '@web3modal/wagmi/react';
+import { createWeb3Modal } from '@web3modal/wagmi/react';
 import { createConfig, http } from 'wagmi';
 import { mainnet } from 'wagmi/chains';
 

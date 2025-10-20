@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Text, TextInput as PaperInput, Button as PaperButton } from 'react-native-paper';
 import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import { useAuthStore } from '../store/useAuthStore';
-import { getAppOptions } from 'expo-firebase-recaptcha';
+import Constants from 'expo-constants';
 import { getFirebaseAuth } from '../store/useAuthStore';
 import { signInWithPhoneNumber, PhoneAuthProvider, RecaptchaVerifier, signInWithCredential } from 'firebase/auth';
 
@@ -14,7 +14,7 @@ export default function PhoneAuthScreen() {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const appOptions = getAppOptions();
+  const firebaseConfig = (Constants.expoConfig?.extra as any)?.firebase;
 
   const sendCode = async () => {
     setLoading(true);
@@ -42,7 +42,7 @@ export default function PhoneAuthScreen() {
 
   return (
     <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
-      <FirebaseRecaptchaVerifierModal ref={recaptchaVerifier} firebaseConfig={appOptions} />
+      <FirebaseRecaptchaVerifierModal ref={recaptchaVerifier} firebaseConfig={firebaseConfig} />
       <Text variant="headlineMedium" style={{ marginBottom: 16 }}>Phone Sign-in</Text>
       <PaperInput
         mode="outlined"
