@@ -7,13 +7,20 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "scheme": "minttrade",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.minttrade.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to scan QR codes for payments.",
+        "NSPhotoLibraryUsageDescription": "This app needs photo library access for KYC document uploads.",
+        "NSPhotoLibraryAddUsageDescription": "This app may save images related to KYC submissions."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +28,11 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.minttrade.app",
+      "permissions": [
+        "CAMERA"
+      ]
     },
     "experiments": {
       "typedRoutes": true
