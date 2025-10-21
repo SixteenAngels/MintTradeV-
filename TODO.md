@@ -7,6 +7,18 @@
 - Wire Finnhub API key to Functions (FINNHUB_API_KEY)
 - Add optimistic UI + Snackbars for wallet/orders
 
+### Env keys to populate (local .env + CI secrets)
+- EXPO_PUBLIC_FIREBASE_API_KEY
+- EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN
+- EXPO_PUBLIC_FIREBASE_PROJECT_ID
+- EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET
+- EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+- EXPO_PUBLIC_FIREBASE_APP_ID
+- EXPO_PUBLIC_API_BASE  (https://<region>-<project>.cloudfunctions.net/api)
+- EXPO_PUBLIC_SENTRY_DSN
+- EXPO_PUBLIC_GSE_API_BASE_URL (defaults to https://dev.kwayisi.org/apis/gse)
+- FINNHUB_API_KEY (Functions runtime)
+
 ## CI/build follow-ups
 - Audit dependencies for React 19 compatibility; avoid packages with React 17/18-only peer ranges
 - Replace `@lottiefiles/dotlottie-react` usage (if any) with `lottie-react`/`lottie-react-native`
