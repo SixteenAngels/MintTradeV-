@@ -37,10 +37,17 @@ async function ensureAuth(): Promise<Auth> {
     await setPersistence(webAuth, browserLocalPersistence);
     authInstance = webAuth;
   } else {
-    const { initializeAuth, getReactNativePersistence } = await import('firebase/auth/react-native');
-    authInstance = initializeAuth(firebaseApp!, {
-      persistence: getReactNativePersistence(AsyncStorage),
-    });
+    try {
+      // Avoid static resolution issues by dynamically importing via eval
+      const rnAuth: any = await (0, eval)("import('firebase/auth/react-native')");
+      authInstance = rnAuth.initializeAuth(firebaseApp!, {
+        persistence: rnAuth.getReactNativePersistence(AsyncStorage),
+      });
+    } catch (err) {
+      // Fallback: use default auth (in-memory persistence on RN)
+      const { getAuth } = await import('firebase/auth');
+      authInstance = getAuth(firebaseApp!);
+    }
   }
   return authInstance!;
 }
