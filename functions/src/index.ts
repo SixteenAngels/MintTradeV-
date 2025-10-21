@@ -135,12 +135,19 @@ export const zeepayWebhook = functions.https.onRequest(async (req, res) => {
 export const finnhubQuote = functions.https.onRequest(async (req, res) => {
   try {
     const symbol = (req.query.symbol as string) || '';
-    if (!symbol) return res.status(400).send('symbol required');
+    if (!symbol) {
+      res.status(400).send('symbol required');
+      return;
+    }
     const token = process.env.FINNHUB_API_KEY;
-    if (!token) return res.status(500).send('server missing FINNHUB_API_KEY');
+    if (!token) {
+      res.status(500).send('server missing FINNHUB_API_KEY');
+      return;
+    }
     const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${token}`;
     const r = await axios.get(url);
     res.json(r.data);
+    return;
   } catch (e: any) {
     res.status(400).send(e.message || 'quote failed');
   }

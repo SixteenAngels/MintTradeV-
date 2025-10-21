@@ -37,10 +37,19 @@ async function ensureAuth(): Promise<Auth> {
     await setPersistence(webAuth, browserLocalPersistence);
     authInstance = webAuth;
   } else {
-    const { initializeAuth, getReactNativePersistence } = await import('firebase/auth/react-native');
-    authInstance = initializeAuth(firebaseApp!, {
-      persistence: getReactNativePersistence(AsyncStorage),
-    });
+    try {
+      // We use an eval-ed dynamic import to avoid Metro/Web bundlers
+      // attempting to statically resolve `firebase/auth/react-native` on web.
+      // This keeps native RN using proper persistence while web bundles cleanly.
+      const rnAuth: any = await (0, eval)("import('firebase/auth/react-native')");
+      authInstance = rnAuth.initializeAuth(firebaseApp!, {
+        persistence: rnAuth.getReactNativePersistence(AsyncStorage),
+      });
+    } catch (err) {
+      // Fallback: use default auth (in-memory persistence on RN)
+      const { getAuth } = await import('firebase/auth');
+      authInstance = getAuth(firebaseApp!);
+    }
   }
   return authInstance!;
 }
