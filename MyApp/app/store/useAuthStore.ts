@@ -38,7 +38,9 @@ async function ensureAuth(): Promise<Auth> {
     authInstance = webAuth;
   } else {
     try {
-      // Avoid static resolution issues by dynamically importing via eval
+      // We use an eval-ed dynamic import to avoid Metro/Web bundlers
+      // attempting to statically resolve `firebase/auth/react-native` on web.
+      // This keeps native RN using proper persistence while web bundles cleanly.
       const rnAuth: any = await (0, eval)("import('firebase/auth/react-native')");
       authInstance = rnAuth.initializeAuth(firebaseApp!, {
         persistence: rnAuth.getReactNativePersistence(AsyncStorage),
