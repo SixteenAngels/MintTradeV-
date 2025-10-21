@@ -5,7 +5,8 @@ import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import { useAuthStore } from '../store/useAuthStore';
 import Constants from 'expo-constants';
 import { getFirebaseAuth } from '../store/useAuthStore';
-import { signInWithPhoneNumber, PhoneAuthProvider, RecaptchaVerifier, signInWithCredential } from 'firebase/auth';
+// Import types and functions via namespace to support ESM build shapes in RN/Web
+import * as RNFirebaseAuth from 'firebase/auth';
 
 export default function PhoneAuthScreen() {
   const recaptchaVerifier = useRef<FirebaseRecaptchaVerifierModal>(null);
@@ -20,7 +21,7 @@ export default function PhoneAuthScreen() {
     setLoading(true);
     try {
       const auth = await getFirebaseAuth();
-      const phoneProvider = new PhoneAuthProvider(auth);
+      const phoneProvider = new RNFirebaseAuth.PhoneAuthProvider(auth);
       const verificationId = await phoneProvider.verifyPhoneNumber(phone, recaptchaVerifier.current as any);
       setCodeSent(verificationId);
     } finally {
@@ -33,8 +34,8 @@ export default function PhoneAuthScreen() {
     setLoading(true);
     try {
       const auth = await getFirebaseAuth();
-      const credential = PhoneAuthProvider.credential(codeSent, code);
-      await signInWithCredential(auth, credential);
+      const credential = RNFirebaseAuth.PhoneAuthProvider.credential(codeSent, code);
+      await RNFirebaseAuth.signInWithCredential(auth, credential);
     } finally {
       setLoading(false);
     }
