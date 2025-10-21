@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "MyApp",
-    "slug": "MyApp",
+    "name": "Mint Trade",
+    "slug": "mint-trade",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -40,8 +40,8 @@
     "web": {
       "bundler": "metro",
       "favicon": "./assets/favicon.png",
-      "name": "MyApp",
-      "shortName": "MyApp",
+      "name": "Mint Trade",
+      "shortName": "Mint Trade",
       "backgroundColor": "#ffffff",
       "themeColor": "#2563eb",
       "display": "standalone"

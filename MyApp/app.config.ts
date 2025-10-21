@@ -2,8 +2,8 @@ import type { ExpoConfig } from 'expo/config';
 
 export default ({ config }: { config: ExpoConfig }): ExpoConfig => ({
   ...config,
-  name: 'MyApp',
-  slug: 'MyApp',
+  name: 'Mint Trade',
+  slug: 'mint-trade',
   extra: {
     firebase: {
       apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || 'AIzaSyDEwB8ekurx17GIvunBhEQcp-3xL8cU9i4',
