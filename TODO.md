@@ -7,6 +7,11 @@
 - Wire Finnhub API key to Functions (FINNHUB_API_KEY)
 - Add optimistic UI + Snackbars for wallet/orders
 
+## CI/build follow-ups
+- Audit dependencies for React 19 compatibility; avoid packages with React 17/18-only peer ranges
+- Replace `@lottiefiles/dotlottie-react` usage (if any) with `lottie-react`/`lottie-react-native`
+- Keep `walletConnect` re-integration out of web bundle until Web3 stack is React 19+ and web-friendly
+
 ## EAS builds (native iOS/Android)
 - Install/login: `npm i -g eas-cli && eas login`
 - Init/configure: `eas init` · `eas build:configure`
@@ -26,6 +31,7 @@
 
 ## Web3 & iOS features
 - WalletConnect/AppKit RN native integration (prebuild)
+- Evaluate React 19–compatible `wagmi`/`viem`/AppKit versions; add back a minimal wallet service after verification on web and native
 - Dynamic Island (Live Activities) for orders and fills (iOS)
 - Siri Shortcuts for quick actions (deep links)
 

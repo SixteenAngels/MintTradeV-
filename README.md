@@ -86,6 +86,17 @@ npm run build
 
 - Jest + jest-expo (basic smoke test)
 - GitHub Actions builds web + typechecks
+- CI runs `npm ci` in `MyApp/`, then `npm run typecheck` and `npm run build:web`.
+- If CI fails at install with peer conflicts, prefer removing/upgrading conflicting deps over `--legacy-peer-deps`.
+
+## Recent dependency changes (CI fix)
+
+- Removed `@lottiefiles/dotlottie-react` due to peer range `react ^17 || ^18` conflicting with React 19.
+- Removed `app/services/walletConnect.ts` (temporary) to avoid bundling incompatible Web3 packages during web export.
+
+Re-enabling WalletConnect later:
+- Add back a wallet service only after selecting a React 19–compatible stack (e.g., updated `wagmi`/`viem`/AppKit) and testing on web/native.
+- Ensure any packages that import Node internals expose proper ESM exports for web bundlers.
 
 ## Notes
 
