@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "MyApp",
+    "slug": "MyApp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "scheme": "minttrade",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.minttrade.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to scan QR codes for payments.",
+        "NSPhotoLibraryUsageDescription": "This app needs photo library access for KYC document uploads.",
+        "NSPhotoLibraryAddUsageDescription": "This app may save images related to KYC submissions."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.minttrade.app",
+      "permissions": [
+        "CAMERA"
+      ]
+    },
+    "experiments": {
+      "typedRoutes": true
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png",
+      "name": "MyApp",
+      "shortName": "MyApp",
+      "backgroundColor": "#ffffff",
+      "themeColor": "#2563eb",
+      "display": "standalone"
+    }
+  }
+}
