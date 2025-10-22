@@ -167,7 +167,7 @@ exports.zeepayWebhook = functions.https.onRequest(async (req, res) => {
     }
 });
 // Finnhub proxy for real-time quotes (supports international + Ghana via .GH suffix)
-exports.finnhubQuote = functions.https.onRequest(async (req, res) => {
+exports.finnhubQuote = functions.runWith({ secrets: ['FINNHUB_API_KEY'] }).https.onRequest(async (req, res) => {
     try {
         const symbol = req.query.symbol || '';
         if (!symbol) {
