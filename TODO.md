@@ -35,6 +35,14 @@
 - (Optional) Dev/internal: `eas build -p ios --profile development` · `eas build -p android --profile development`
 - Submit: `eas submit -p ios` · `eas submit -p android`
 
+## Local auth, secrets, and deploy (run on your machine)
+- Install Firebase CLI: `npm i -g firebase-tools`
+- Login: `firebase login`
+- Set secret: `cd MyApp && firebase functions:secrets:set FINNHUB_API_KEY`
+- Deploy Functions: `cd MyApp && firebase deploy --only functions --project minttrade-e8410`
+- Update app env: set `EXPO_PUBLIC_API_BASE` in `MyApp/.env` to the deployed URL `https://<region>-<project>.cloudfunctions.net/api`
+- Fill remaining `.env` values: `EXPO_PUBLIC_SENTRY_DSN` and any `EXPO_PUBLIC_FIREBASE_*` if using a different Firebase project
+
 ## Apple HIG polish
 - Extend Blur surfaces to Markets/Portfolio cards
 - Add haptics to login/order/deposit/withdraw success

@@ -15,7 +15,7 @@ npm install
 
 3) Env (local dev)
 
-Create `.env.local` with placeholders or real values:
+Create `.env` in `MyApp/` with placeholders or real values:
 
 ```
 EXPO_PUBLIC_FIREBASE_API_KEY=...
@@ -30,13 +30,25 @@ EXPO_PUBLIC_GSE_API_BASE_URL=https://dev.kwayisi.org/apis/gse
 EXPO_PUBLIC_WALLETCONNECT_PROJECT_ID=
 ```
 
-4) Run
+4) Firebase auth, secret, and deploy (one-time per environment)
+
+```bash
+npm i -g firebase-tools
+firebase login
+cd MyApp
+firebase functions:secrets:set FINNHUB_API_KEY
+firebase deploy --only functions --project <your-project-id>
+# After deploy, set EXPO_PUBLIC_API_BASE in MyApp/.env to:
+# https://<region>-<your-project-id>.cloudfunctions.net/api
+```
+
+5) Run
 
 ```bash
 npm start  # choose web/ios/android
 ```
 
-5) Web export (PWA)
+6) Web export (PWA)
 
 ```bash
 npm run build:web  # outputs to web-build/

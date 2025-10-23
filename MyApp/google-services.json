@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "276267817525",
+    "project_id": "minttrade-e8410",
+    "storage_bucket": "minttrade-e8410.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:276267817525:android:33f96c589e1f2f76d96f7c",
+        "android_client_info": {
+          "package_name": "com.trustmint.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-34CHWoXSLlmXcu9NEGpD9cpKt_aEjLs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
