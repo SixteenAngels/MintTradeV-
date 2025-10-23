@@ -4,6 +4,16 @@ export default ({ config }: { config: ExpoConfig }): ExpoConfig => ({
   ...config,
   name: 'Mint Trade',
   slug: 'mint-trade',
+  ios: {
+    ...(config.ios || {}),
+    bundleIdentifier: 'com.trustmint.app',
+    googleServicesFile: './GoogleService-Info.plist',
+  },
+  android: {
+    ...(config.android || {}),
+    package: 'com.trustmint.app',
+    googleServicesFile: './google-services.json',
+  },
   extra: {
     firebase: {
       apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || 'AIzaSyDEwB8ekurx17GIvunBhEQcp-3xL8cU9i4',
