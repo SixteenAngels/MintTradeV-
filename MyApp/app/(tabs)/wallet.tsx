@@ -19,12 +19,24 @@ export default function WalletScreen() {
   const onDeposit = async () => {
     setLoading(true);
     setResult(null);
+    const optimisticId = `temp-${Date.now()}`;
+    const optimisticAmount = Number(amount || 0);
+    const optimisticTx: WalletTx = {
+      id: optimisticId,
+      amount: optimisticAmount,
+      type: 'deposit',
+      status: 'pending',
+      createdAt: Date.now(),
+    };
+    setTxs((current) => [optimisticTx, ...current]);
     try {
-      const r = await initiateDeposit(Number(amount || 0), 'momo');
+      const r = await initiateDeposit(optimisticAmount, 'momo');
       setResult(JSON.stringify(r));
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       show('Deposit initiated');
     } catch (e: any) {
+      // Revert optimistic item on failure
+      setTxs((current) => current.filter((tx) => tx.id !== optimisticId));
       setResult(e?.message || 'Failed');
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       show('Deposit failed');
@@ -41,7 +53,11 @@ export default function WalletScreen() {
     setLoadingTx(true);
     try {
       const data = await getTransactions();
-      setTxs(data);
+      // Preserve optimistic transactions while merging latest server data
+      setTxs((current) => {
+        const optimistic = current.filter((tx) => tx.id.startsWith('temp-'));
+        return [...optimistic, ...data];
+      });
     } finally {
       setLoadingTx(false);
     }
@@ -97,11 +113,24 @@ export default function WalletScreen() {
                 setLoading(true);
                 setResult(null);
                 try {
-                  const r = await requestWithdrawal(Number(withdrawAmount), { type: 'momo', account: withdrawDest });
+                  const optimisticId = `temp-${Date.now()}`;
+                  const optimisticAmt = Number(withdrawAmount || 0);
+                  const optimisticTx: WalletTx = {
+                    id: optimisticId,
+                    amount: -Math.abs(optimisticAmt),
+                    type: 'withdraw',
+                    status: 'pending',
+                    createdAt: Date.now(),
+                  };
+                  setTxs((current) => [optimisticTx, ...current]);
+
+                  const r = await requestWithdrawal(optimisticAmt, { type: 'momo', account: withdrawDest });
                   setResult(JSON.stringify(r));
                   await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                   show('Withdrawal requested');
                 } catch (e: any) {
+                  // Revert optimistic item on failure
+                  setTxs((current) => current.filter((tx) => !tx.id.startsWith('temp-')));
                   setResult(e?.message || 'Failed');
                   await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
                   show('Withdrawal failed');
