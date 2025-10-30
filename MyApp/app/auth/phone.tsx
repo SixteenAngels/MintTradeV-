@@ -2,9 +2,9 @@ import React, { useRef, useState } from 'react';
 import { View } from 'react-native';
 import { Text, TextInput as PaperInput, Button as PaperButton } from 'react-native-paper';
 import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
-import { useAuthStore } from '../store/useAuthStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import Constants from 'expo-constants';
-import { getFirebaseAuth } from '../store/useAuthStore';
+import { getFirebaseAuth } from '../../store/useAuthStore';
 // Import types and functions via namespace to support ESM build shapes in RN/Web
 import * as RNFirebaseAuth from 'firebase/auth';
 

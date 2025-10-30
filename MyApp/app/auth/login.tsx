@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Link } from 'expo-router';
-import { InputField } from '../components/InputField';
-import { Button } from '../components/Button';
-import { useAuthStore } from '../store/useAuthStore';
+import { InputField } from '../../components/InputField';
+import { Button } from '../../components/Button';
+import { useAuthStore } from '../../store/useAuthStore';
 import * as Haptics from 'expo-haptics';
-import { useSnackbarStore } from '../store/useSnackbarStore';
+import { useSnackbarStore } from '../../store/useSnackbarStore';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');

@@ -1,72 +1,163 @@
-import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
-import { Text, Switch, TextInput, Button } from 'react-native-paper';
+import React from 'react';
+import { View, ScrollView, Text, StyleSheet, Pressable } from 'react-native';
+import { Avatar, Switch, Title, Caption, Card } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
+import { useAuthStore } from '../../store/useAuthStore';
 import { Link } from 'expo-router';
-import { getKycStatus, submitKyc } from '../services/kycService';
-import { useSecurityStore } from '../store/useSecurityStore';
-import { BlurView } from 'expo-blur';
-import { useResponsive } from '../hooks/useResponsive';
 
-export default function ProfileScreen() {
-  const { containerPadding, twoPane } = useResponsive();
-  const { init, loading, biometricsAvailable, biometricsEnabled, setBiometricsEnabled, hasPin, setPin } = useSecurityStore();
-  const [kyc, setKyc] = useState<{ status: string; reason?: string } | null>(null);
-  const [pin, setPinLocal] = useState('');
+// Placeholder for Lottie animation
+const ProfileAvatar = () => (
+  <Avatar.Image size={80} source={{ uri: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }} />
+);
 
-  useEffect(() => {
-    init();
-  }, [init]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const s = await getKycStatus();
-        setKyc(s);
-      } catch {}
-    })();
-  }, []);
+const ProfileScreen = () => {
+  const { user, signOut } = useAuthStore((s) => ({ user: s.user, signOut: s.signOut }));
+  const [isBiometricsEnabled, setIsBiometricsEnabled] = React.useState(false);
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
 
   return (
-    <View style={{ flex: 1, paddingHorizontal: containerPadding, paddingTop: 16 }}>
-      <Text variant="headlineMedium" style={{ marginBottom: 16 }}>Profile</Text>
-      <View style={{ flex: 1, flexDirection: twoPane ? 'row' : 'column', gap: 16 }}>
-        <BlurView intensity={20} tint="light" style={{ flex: 1, borderRadius: 16, overflow: 'hidden', padding: 16 }}>
-          <Text style={{ marginBottom: 8 }}>Security</Text>
-          <TextInput
-            mode="outlined"
-            label={hasPin ? 'Update PIN' : 'Set 4-digit PIN'}
-            value={pin}
-            onChangeText={setPinLocal}
-            secureTextEntry
-            keyboardType="number-pad"
-            style={{ marginBottom: 12 }}
-          />
-          <Text onPress={async () => { if (pin.length >= 4) { await setPin(pin); setPinLocal(''); } }} style={{ color: '#2563eb', marginBottom: 16 }}>
-            {hasPin ? 'Save new PIN' : 'Save PIN'}
-          </Text>
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text>Enable biometrics</Text>
-            <Switch
-              disabled={!biometricsAvailable}
-              value={biometricsEnabled}
-              onValueChange={(v) => setBiometricsEnabled(v)}
-            />
-          </View>
-          {!biometricsAvailable && (
-            <Text style={{ marginTop: 8, color: '#6b7280' }}>Biometrics not available or not enrolled.</Text>
-          )}
-        </BlurView>
-
-        <BlurView intensity={20} tint="light" style={{ flex: 1, borderRadius: 16, overflow: 'hidden', padding: 16 }}>
-          <Text style={{ marginBottom: 8 }}>KYC</Text>
-          <Text>Status: {kyc?.status ?? 'unknown'}</Text>
-          {kyc?.reason ? <Text>Reason: {kyc.reason}</Text> : null}
-          <Text style={{ marginTop: 8, color: '#2563eb' }}>
-            Go to full KYC: <Link href="/(tabs)/kyc">Open KYC</Link>
-          </Text>
-        </BlurView>
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <ProfileAvatar />
+        <Title style={styles.greeting}>Good evening, {user?.displayName ?? 'Prosper'} 🌙</Title>
+        <Caption style={styles.subGreeting}>Investor since 2025</Caption>
       </View>
-    </View>
+
+      <View style={styles.menuContainer}>
+        <Card style={styles.card}>
+          <Card.Title title="🔒 Security" />
+          <Card.Content>
+            <Pressable style={styles.menuItem}>
+              <Text style={styles.menuText}>Change PIN</Text>
+              <Ionicons name="chevron-forward" size={24} color="#ccc" />
+            </Pressable>
+            <View style={styles.menuItem}>
+              <Text style={styles.menuText}>Enable biometrics</Text>
+              <Switch value={isBiometricsEnabled} onValueChange={setIsBiometricsEnabled} />
+            </View>
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Title title="🪪 KYC Verification" />
+          <Card.Content>
+            <Link href="/profile/kyc" asChild>
+              <Pressable style={styles.menuItem}>
+                <Text style={styles.menuText}>Verify ID</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={styles.statusBadge}>Pending</Text>
+                  <Ionicons name="chevron-forward" size={24} color="#ccc" />
+                </View>
+              </Pressable>
+            </Link>
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Title title="⚙️ App Settings" />
+          <Card.Content>
+            <View style={styles.menuItem}>
+              <Text style={styles.menuText}>Dark mode</Text>
+              <Switch value={isDarkMode} onValueChange={setIsDarkMode} />
+            </View>
+            <Pressable style={styles.menuItem}>
+              <Text style={styles.menuText}>Language</Text>
+              <Ionicons name="chevron-forward" size={24} color="#ccc" />
+            </Pressable>
+            <Pressable style={styles.menuItem}>
+              <Text style={styles.menuText}>Notification preferences</Text>
+              <Ionicons name="chevron-forward" size={24} color="#ccc" />
+            </Pressable>
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Title title="💬 Support" />
+          <Card.Content>
+            <Pressable style={styles.menuItem}>
+              <Text style={styles.menuText}>Chat with us</Text>
+              <Ionicons name="chevron-forward" size={24} color="#ccc" />
+            </Pressable>
+          </Card.Content>
+        </Card>
+
+        <Card style={styles.card}>
+          <Card.Title title="📜 Terms & Privacy" />
+          <Card.Content>
+            <Pressable style={styles.menuItem}>
+              <Text style={styles.menuText}>Read our terms</Text>
+              <Ionicons name="chevron-forward" size={24} color="#ccc" />
+            </Pressable>
+          </Card.Content>
+        </Card>
+      </View>
+
+      <View style={styles.footer}>
+        <Pressable onPress={signOut}>
+          <Text style={styles.logoutText}>Logout</Text>
+        </Pressable>
+        <Text style={styles.versionText}>Version 1.0.0 (Build 1)</Text>
+      </View>
+    </ScrollView>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  header: {
+    alignItems: 'center',
+    paddingTop: 40,
+    paddingBottom: 20,
+  },
+  greeting: {
+    color: '#fff',
+    marginTop: 10,
+  },
+  subGreeting: {
+    color: '#ccc',
+  },
+  menuContainer: {
+    paddingHorizontal: 16,
+  },
+  card: {
+    backgroundColor: '#1C1C1E',
+    marginBottom: 16,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  menuText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  statusBadge: {
+    backgroundColor: '#FFA500',
+    color: '#000',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginRight: 8,
+    overflow: 'hidden',
+  },
+  footer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  logoutText: {
+    color: '#FF3B30',
+    fontSize: 16,
+  },
+  versionText: {
+    color: '#ccc',
+    fontSize: 12,
+    marginTop: 8,
+  },
+});
+
+export default ProfileScreen;

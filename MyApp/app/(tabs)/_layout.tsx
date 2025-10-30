@@ -1,18 +1,28 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Platform } from 'react-native';
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: true,
-        headerTitleAlign: 'center',
-        tabBarLabelStyle: { fontSize: 12 },
+        headerShown: false, // Hiding default header to use custom ones
+        tabBarActiveTintColor: '#00D09C', // Mint green for active tab
+        tabBarInactiveTintColor: '#888',
+        tabBarStyle: {
+          backgroundColor: '#1C1C1E',
+          borderTopColor: '#333',
+        },
+        tabBarLabelStyle: { 
+            fontSize: 12, 
+            fontWeight: '600',
+            marginBottom: Platform.OS === 'ios' ? 0 : 10
+        },
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => (
@@ -20,21 +30,21 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="markets"
-        options={{
-          title: 'Markets',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="bar-chart-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
+        <Tabs.Screen
         name="portfolio"
         options={{
           title: 'Portfolio',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="pie-chart-outline" size={size} color={color} />
+            <Ionicons name="briefcase-outline" size={size} color={color} />
+          ),
+        }}
+      />
+        <Tabs.Screen
+        name="trade"
+        options={{
+          title: 'Trade',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="swap-horizontal-outline" size={size} color={color} />
           ),
         }}
       />
@@ -53,15 +63,6 @@ export default function TabsLayout() {
           title: 'Profile',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="qr"
-        options={{
-          title: 'Scan',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="qr-code-outline" size={size} color={color} />
           ),
         }}
       />

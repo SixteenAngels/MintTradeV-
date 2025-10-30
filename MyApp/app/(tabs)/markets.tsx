@@ -1,77 +1,130 @@
-import React, { useEffect, useState } from 'react';
-import { View, FlatList, RefreshControl } from 'react-native';
-import { Text, List, ActivityIndicator } from 'react-native-paper';
-import { fetchMarketList, type GseQuote } from '../services/marketService';
-import { Link } from 'expo-router';
-import { BlurView } from 'expo-blur';
-import { useResponsive } from '../hooks/useResponsive';
-import * as Haptics from 'expo-haptics';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput, Pressable, FlatList } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { MotiView } from 'moti';
+import { useRouter } from 'expo-router';
+import StockListItem from '../../components/StockListItem'; // Adjusted path
 
-export default function MarketsScreen() {
-  const { containerPadding, numColumns } = useResponsive();
-  const [loading, setLoading] = useState(true);
-  const [quotes, setQuotes] = useState<GseQuote[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
+// Mock data - replace with API calls
+const stockData = {
+  '🇬🇭 Ghana': [
+    { id: 'MTNGH', logoUrl: 'https://i.imgur.com/T5t2p4f.png', name: 'MTN Ghana', ticker: 'MTNGH', price: '1.45', change: '+1.5%', isUp: true, sparklineData: [5, 10, 8, 12, 11, 15, 13] },
+    { id: 'CAL', logoUrl: 'https://i.imgur.com/A5T4v41.png', name: 'CalBank', ticker: 'CAL', price: '0.92', change: '-0.8%', isUp: false, sparklineData: [10, 8, 9, 7, 8, 6, 7] },
+    { id: 'GOIL', logoUrl: 'https://i.imgur.com/Jjw7b4s.png', name: 'GOIL Plc', ticker: 'GOIL', price: '1.50', change: '+0.0%', isUp: true, sparklineData: [1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5] },
+    { id: 'GCB', logoUrl: 'https://i.imgur.com/wP6X2L6.png', name: 'GCB Bank', ticker: 'GCB', price: '4.80', change: '+2.1%', isUp: true, sparklineData: [4.6, 4.65, 4.7, 4.72, 4.75, 4.78, 4.8] },
+  ],
+  '🇺🇸 US': [],
+  '💰 Crypto': [],
+  '📈 ETFs': [],
+};
 
-  async function load() {
-    setLoading(true);
-    try {
-      const data = await fetchMarketList();
-      setQuotes(data);
-    } finally {
-      setLoading(false);
-    }
-  }
+const tabs = ['🇬🇭 Ghana', '🇺🇸 US', '💰 Crypto', '📈 ETFs'];
 
-  useEffect(() => {
-    load();
-  }, []);
+const MarketsScreen = () => {
+  const [activeTab, setActiveTab] = useState(tabs[0]);
+  const router = useRouter();
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    try {
-      const data = await fetchMarketList();
-      setQuotes(data);
-    } finally {
-      setRefreshing(false);
-      try { await Haptics.selectionAsync(); } catch {}
-    }
+  const handleStockPress = (stockId: string) => {
+    router.push(`/stock-detail?id=${stockId}`);
   };
 
   return (
-    <View style={{ flex: 1, paddingHorizontal: containerPadding, paddingTop: 12 }}>
-      <Text variant="headlineMedium" style={{ margin: 8 }}>Markets</Text>
-      {loading ? (
-        <ActivityIndicator style={{ marginTop: 24 }} />
-      ) : (
-        <FlatList
-          data={quotes}
-          keyExtractor={(item) => item.symbol}
-          numColumns={numColumns}
-          columnWrapperStyle={numColumns > 1 ? { gap: 12, paddingHorizontal: containerPadding } : undefined}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-          renderItem={({ item }) => (
-            <BlurView
-              intensity={20}
-              tint="light"
-              style={{ flex: 1, borderRadius: 12, overflow: 'hidden', marginVertical: 6, marginHorizontal: numColumns > 1 ? 0 : 8 }}
+    <View style={styles.container}>
+      <MotiView 
+        style={styles.header}
+        from={{ translateY: -50, opacity: 0 }}
+        animate={{ translateY: 0, opacity: 1 }}
+        transition={{ type: 'timing', duration: 400 }}
+      >
+        <View style={styles.searchBarContainer}>
+            <Ionicons name="search" size={20} color="#888" style={{ marginLeft: 10 }} />
+            <TextInput placeholder="Search stocks, crypto, or ETFs..." placeholderTextColor="#888" style={styles.searchBar} />
+            <Ionicons name="mic-outline" size={24} color="#888" style={{ marginRight: 10 }} />
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsContainer}>
+          {tabs.map(tab => (
+            <Pressable key={tab} onPress={() => setActiveTab(tab)} style={styles.tab}>
+              <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text>
+              {activeTab === tab && <MotiView style={styles.activeTabIndicator} from={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ type: 'timing', duration: 300 }}/>}
+            </Pressable>
+          ))}
+        </ScrollView>
+      </MotiView>
+
+      <FlatList
+        data={stockData[activeTab as keyof typeof stockData]}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+            <MotiView
+                from={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: 'timing', duration: 300 }}
             >
-              <Link href={`/(tabs)/symbol/${item.symbol}`} asChild>
-                <List.Item
-                  title={`${item.symbol}`}
-                  description={`GHS ${item.price.toFixed(2)}  (${item.change >= 0 ? '+' : ''}${item.change.toFixed(2)} | ${item.changePercent.toFixed(2)}%)`}
-                  accessibilityLabel={`${item.symbol} ${item.price.toFixed(2)} Ghana Cedis`}
-                  right={() => (
-                    <Text style={{ color: item.change >= 0 ? '#10B981' : '#ef4444' }}>
-                      {item.change >= 0 ? '▲' : '▼'} {item.price.toFixed(2)}
-                    </Text>
-                  )}
+                <StockListItem 
+                    {...item} 
+                    onPress={() => handleStockPress(item.id)} 
                 />
-              </Link>
-            </BlurView>
-          )}
-        />
-      )}
+            </MotiView>
+        )}
+        contentContainerStyle={styles.stockListContainer}
+      />
     </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    header: {
+        paddingTop: 50, // Added for safe area
+        paddingHorizontal: 16,
+        paddingBottom: 8,
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+    },
+    searchBarContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f0f0f0',
+        borderRadius: 10,
+        marginBottom: 16,
+    },
+    searchBar: {
+        flex: 1,
+        padding: 12,
+        fontSize: 16,
+        color: '#000',
+    },
+    tabsContainer: {
+        flexDirection: 'row',
+    },
+    tab: {
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        marginRight: 8,
+        alignItems: 'center',
+    },
+    tabText: {
+        fontSize: 16,
+        color: '#888',
+        fontWeight: '600',
+    },
+    activeTabText: {
+        color: '#000',
+    },
+    activeTabIndicator: {
+        height: 3,
+        width: '80%',
+        backgroundColor: '#00D09C',
+        borderRadius: 3,
+        marginTop: 6,
+    },
+    stockListContainer: {
+        paddingHorizontal: 16,
+    }
+});
+
+export default MarketsScreen;

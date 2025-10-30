@@ -29,5 +29,8 @@ module.exports = (() => {
       : context.resolveRequest(context, moduleName, platform);
   };
 
+  // This allows the web app to be accessed from any origin.
+  config.server = { ...config.server, allowAnonymousOrigins: true };
+
   return config;
 })();
